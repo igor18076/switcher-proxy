@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proxy Switcher Pro</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">P</div>
+          <div class="brand-copy">
+            <h1>Proxy Switcher Pro</h1>
+            <p id="statusText">Loading</p>
+          </div>
+        </div>
+        <div class="language-switch" aria-label="Language">
+          <button id="langRu" type="button" data-lang="ru">RU</button>
+          <button id="langEn" type="button" data-lang="en">EN</button>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="Pages">
+        <button id="statusTab" type="button" class="active">Status</button>
+        <button id="headersTab" type="button">Headers</button>
+        <button id="settingsTab" type="button">Settings</button>
+      </nav>
+
+      <section class="page status-page active" id="statusPage" aria-label="Proxy status">
+        <div class="status-hero">
+          <button class="power hero-power" id="toggleProxy" type="button" title="Toggle proxy" aria-label="Toggle proxy">
+            <span class="power-ring"></span>
+          </button>
+          <div class="status-copy">
+            <span id="statusEyebrow">Current state</span>
+            <strong id="statusHeadline">Proxy disabled</strong>
+            <p id="statusDescription">Traffic is going directly through Chrome.</p>
+          </div>
+        </div>
+
+        <div class="status-grid">
+          <div class="stat-tile">
+            <span id="statProfileLabel">Profile</span>
+            <strong id="statProfile">Main proxy</strong>
+          </div>
+          <div class="stat-tile">
+            <span id="statServerLabel">Server</span>
+            <strong id="statServer">Not configured</strong>
+          </div>
+          <div class="stat-tile">
+            <span id="statModeLabel">Mode</span>
+            <strong id="statMode">All except bypass</strong>
+          </div>
+          <div class="stat-tile">
+            <span id="statAuthLabel">Auth</span>
+            <strong id="statAuth">Off</strong>
+          </div>
+        </div>
+
+        <section class="check-card" id="checkCard" aria-label="Connection check">
+          <div class="check-head">
+            <div>
+              <span id="checkLabel">Connection check</span>
+              <strong id="checkHeadline">Not checked</strong>
+            </div>
+            <button id="runCheck" type="button">Check</button>
+          </div>
+          <div class="check-grid">
+            <div>
+              <span id="checkIpLabel">Visible IP</span>
+              <strong id="checkIp">-</strong>
+            </div>
+            <div>
+              <span id="checkControlLabel">Chrome control</span>
+              <strong id="checkControl">-</strong>
+            </div>
+            <div>
+              <span id="checkLatencyLabel">Latency</span>
+              <strong id="checkLatency">-</strong>
+            </div>
+            <div>
+              <span id="checkRouteLabel">Expected route</span>
+              <strong id="checkRoute">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="risk-card" id="riskCard" aria-label="Page risk">
+          <div class="risk-head">
+            <div>
+              <span id="riskLabel">Page risk</span>
+              <strong id="riskLevel">Unknown</strong>
+            </div>
+            <span class="risk-pill" id="riskPill">...</span>
+          </div>
+          <p id="riskUrl">No active page</p>
+          <ul id="riskReasons"></ul>
+          <div class="risk-actions">
+            <span id="riskDetailsLabel">Details</span>
+            <div class="risk-buttons">
+              <button id="refreshRisk" type="button">Refresh risk</button>
+              <button id="clearRisk" type="button">Clear</button>
+            </div>
+          </div>
+          <div class="risk-details" id="riskDetails"></div>
+          <section class="risk-timeline-wrap" aria-label="Risk timeline">
+            <div class="risk-subhead">
+              <span id="riskTimelineLabel">Timeline</span>
+              <strong id="riskTimelineCount">0</strong>
+            </div>
+            <div class="risk-timeline" id="riskTimeline"></div>
+          </section>
+        </section>
+
+        <button class="primary wide-action" id="openSettings" type="button">Open settings</button>
+      </section>
+
+      <section class="page headers-page" id="headersPage" aria-label="Request headers">
+        <section class="headers-toolbar">
+          <div>
+            <span id="headersTitle">Request headers</span>
+            <p id="headersSubtitle">Recent requests from the active tab.</p>
+          </div>
+          <div class="headers-actions">
+            <button id="refreshHeaders" type="button">Refresh</button>
+            <button id="clearHeaders" type="button">Clear</button>
+          </div>
+        </section>
+        <section class="headers-diagnostics" id="headersDiagnostics">
+          <div>
+            <span id="diagTabLabel">Tab</span>
+            <strong id="diagTabId">-</strong>
+          </div>
+          <div>
+            <span id="diagTabRecordsLabel">Tab records</span>
+            <strong id="diagTabRecords">0</strong>
+          </div>
+          <div>
+            <span id="diagGlobalRecordsLabel">Global records</span>
+            <strong id="diagGlobalRecords">0</strong>
+          </div>
+          <div>
+            <span id="diagLastCaptureLabel">Last capture</span>
+            <strong id="diagLastCapture">-</strong>
+          </div>
+        </section>
+        <div class="headers-list" id="headersList"></div>
+      </section>
+
+      <section class="page settings-page" id="settingsPage" aria-label="Proxy settings">
+        <section class="profile-strip" aria-label="Profiles">
+          <select id="profileSelect" title="Active profile"></select>
+          <button class="icon-btn" id="addProfile" type="button" title="Add profile" aria-label="Add profile">+</button>
+          <button class="icon-btn danger" id="deleteProfile" type="button" title="Delete profile" aria-label="Delete profile">x</button>
+        </section>
+
+        <section class="form-grid" aria-label="Proxy profile settings">
+          <label class="field wide">
+            <span id="labelProfileName">Profile name</span>
+            <input id="profileName" type="text" autocomplete="off" placeholder="Work SOCKS">
+          </label>
+
+          <label class="field">
+            <span id="labelType">Type</span>
+            <select id="proxyType">
+              <option>HTTP</option>
+              <option>HTTPS</option>
+              <option>SOCKS4</option>
+              <option>SOCKS5</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span id="labelPort">Port</span>
+            <input id="proxyPort" type="number" min="1" max="65535" inputmode="numeric" placeholder="1080">
+          </label>
+
+          <label class="field wide">
+            <span id="labelHost">Host</span>
+            <input id="proxyHost" type="text" autocomplete="off" spellcheck="false" placeholder="127.0.0.1">
+          </label>
+
+          <label class="field">
+            <span id="labelUsername">Username</span>
+            <input id="proxyUsername" type="text" autocomplete="username" placeholder="optional">
+          </label>
+
+          <label class="field">
+            <span id="labelPassword">Password</span>
+            <input id="proxyPassword" type="password" autocomplete="current-password" placeholder="optional">
+          </label>
+        </section>
+
+        <section class="mode-card" aria-label="Proxy mode">
+          <div class="segmented">
+            <button id="modeAllExcept" type="button" data-mode="allExcept">All except bypass</button>
+            <button id="modeOnlySelected" type="button" data-mode="onlySelected">Only selected</button>
+          </div>
+        </section>
+
+        <section class="lists" aria-label="Routing lists">
+          <label class="field area">
+            <span class="label-row">
+              <span id="labelBypassList">Bypass list</span>
+              <button class="help-btn" id="bypassHelp" type="button" title="Bypass list help" aria-label="Bypass list help">?</button>
+            </span>
+            <textarea id="bypassList" spellcheck="false" placeholder="localhost&#10;127.0.0.1&#10;*.internal.example"></textarea>
+          </label>
+          <div class="hint-panel" id="bypassHint" hidden>
+            <strong id="bypassHintTitle">Bypass list format</strong>
+            <p id="bypassHintText">Add sites and addresses that should open directly without the proxy. Use one rule per line.</p>
+            <pre>localhost
+127.0.0.1
+&lt;local&gt;
+*.local
+example.com
+*.example.com</pre>
+          </div>
+
+          <label class="field area" id="domainListField">
+            <span class="label-row">
+              <span id="labelDomainList">Selected domains</span>
+              <button class="help-btn" id="domainHelp" type="button" title="Selected domains help" aria-label="Selected domains help">?</button>
+            </span>
+            <textarea id="domainList" spellcheck="false" placeholder="example.com&#10;*.company.test"></textarea>
+          </label>
+          <div class="hint-panel" id="domainHint" hidden>
+            <strong id="domainHintTitle">Selected domains format</strong>
+            <p id="domainHintText">In selected mode only these domains use the proxy. Bypass rules still win.</p>
+          </div>
+        </section>
+
+        <section class="route-test" aria-label="Route tester">
+          <div class="route-test-head">
+            <div>
+              <span id="routeTestLabel">Route tester</span>
+              <p id="routeTestHint">Check how current rules route a domain.</p>
+            </div>
+            <strong id="routeTestResult">-</strong>
+          </div>
+          <label class="field">
+            <span id="routeTestInputLabel">Domain or URL</span>
+            <input id="routeTestInput" type="text" autocomplete="off" spellcheck="false" placeholder="example.com">
+          </label>
+          <div class="route-reason" id="routeTestReason">Enter a domain to test.</div>
+        </section>
+
+        <section class="actions" aria-label="Actions">
+          <button id="saveProfile" type="button" class="primary">Save</button>
+          <button id="exportSettings" type="button">Export</button>
+          <label class="file-button" id="importLabel">
+            Import
+            <input id="importSettings" type="file" accept="application/json,.json">
+          </label>
+        </section>
+      </section>
+
+      <footer class="footer">
+        <span id="messageText"></span>
+      </footer>
+    </main>
+
+    <script src="i18n.js"></script>
+    <script src="rules.js"></script>
+    <script src="risk.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
