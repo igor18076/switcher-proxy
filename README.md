@@ -125,4 +125,4 @@ For local distribution, zip the extension source files without `.git`, editor se
 
 ## License
 
-No license has been specified yet. Add a license before accepting external contributions or distributing the project publicly.
+Use this project however you want. I created it for personal needs and do not plan to actively develop it.
